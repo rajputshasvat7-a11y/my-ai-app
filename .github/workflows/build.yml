@@ -21,9 +21,12 @@ jobs:
           pip install buildozer cython
 
       - name: Build with Buildozer
+        env:
+          # This forces Buildozer to automatically accept all Android license panels
+          APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
         run: |
-          yes | buildozer -v android debug
-
+          buildozer -v android debug
+          
       - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
