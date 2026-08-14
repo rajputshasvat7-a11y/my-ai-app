@@ -13,20 +13,21 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Android Core Dependencies
+      - name: Install Android Core and 32-bit Dependencies
         run: |
+          sudo dpkg --add-architecture i386
           sudo apt-get update
           sudo apt-get install -y build-essential libssl-dev libffi-dev ccache
+          # These specific libraries are what aidl needs to run on a 64-bit system
+          sudo apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386 lib32z1
           pip install --upgrade pip
           pip install buildozer cython
 
       - name: Build with Buildozer
         env:
-          # This forces Buildozer to natively auto-accept all SDK and NDK licenses
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
           BUILDOZER_ACCEPT_LICENSE: "1"
         run: |
-          # Notice 'yes |' is completely gone. This prevents the pipeline from breaking.
           buildozer -v android debug
           
       - name: Upload Finished APK
