@@ -8,27 +8,16 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      # Use the official community action that configures Android SDK and aidl automatically
+      - name: Build APK with Buildozer
+        uses: ArtemGovorov/buildozer-action@v1
+        id: buildozer
         with:
-          python-version: '3.11'
+          workdir: .
+          buildozer_version: stable
 
-      - name: Install Android Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libssl-dev libffi-dev ccache
-          sudo apt-get install -y libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good
-          pip install buildozer cython
-
-      - name: Build with Buildozer
-        env:
-          # This forces Buildozer to automatically accept all Android license panels
-          APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
-        run: |
-          buildozer -v android debug
-          
       - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
           name: my-android-app-apk
-          path: bin/*.apk
+          path: .buildozer/android/platform/build-arm64-v8a_armeabi-v7a/dists/*/*.apk
