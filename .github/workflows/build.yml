@@ -3,7 +3,6 @@ on: [push, workflow_dispatch]
 
 jobs:
   build:
-    # Changed to standard ubuntu-latest to bypass the long queue line
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -14,7 +13,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Installed explicit build tools to prevent any gstreamer mismatches
       - name: Install Android Core Dependencies
         run: |
           sudo apt-get update
@@ -24,10 +22,13 @@ jobs:
 
       - name: Build with Buildozer
         env:
+          # This forces Buildozer to natively auto-accept all SDK and NDK licenses
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
+          BUILDOZER_ACCEPT_LICENSE: "1"
         run: |
-          yes | buildozer -v android debug
-
+          # Notice 'yes |' is completely gone. This prevents the pipeline from breaking.
+          buildozer -v android debug
+          
       - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
